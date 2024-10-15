@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import Image from 'next/image';
 
 // Définir le schéma de validation avec Yup
 const validationSchema = Yup.object().shape({
@@ -108,7 +109,13 @@ export default function Profile() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {user.photoURL && (
             <div className="flex justify-center mb-4">
-              <img src={user.photoURL} alt="Photo de profil" className="w-32 h-32 rounded-full" />
+              <Image
+                src={user.photoURL}
+                alt="Photo de profil"
+                width={128} // Définissez la largeur souhaitée
+                height={128} // Définissez la hauteur souhaitée
+                className="rounded-full"
+              />
             </div>
           )}
           

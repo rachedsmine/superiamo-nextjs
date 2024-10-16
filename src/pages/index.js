@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
 import localFont from "next/font/local";
 import { motion } from 'framer-motion';
-import { FaGithub, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -79,7 +79,7 @@ export default function Home() {
           className="text-center"
         >
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-4">
-            Bienvenue sur Speriamo
+            Bienvenue sur Superiamo
           </h1>
           <p className="text-lg sm:text-xl mb-8 text-gray-600 dark:text-gray-300">
             Connectez-vous ou inscrivez-vous pour accéder à votre profil et gérer vos informations en toute simplicité.

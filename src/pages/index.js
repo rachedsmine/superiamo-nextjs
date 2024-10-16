@@ -6,7 +6,6 @@ import localFont from "next/font/local";
 import { motion } from 'framer-motion';
 import { FaGithub, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
 
-
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -68,7 +67,7 @@ export default function Home() {
                   href="/signup"
                   className="px-3 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition"
                 >
-                  S'inscrire
+                  S&apos;inscrire
                 </Link>
               </>
             )}
@@ -110,7 +109,7 @@ export default function Home() {
                   href="/signup"
                   className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition text-center"
                 >
-                  S'inscrire
+                  S&apos;inscrire
                 </Link>
               </>
             )}

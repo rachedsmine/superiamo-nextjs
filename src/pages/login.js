@@ -1,58 +1,50 @@
-// src/pages/login.js
 import { useState } from 'react';
-import { auth, githubSignIn, saveUserDataToFirestore } from '../lib/firebase';
 import Link from 'next/link';
 import { FaGithub } from 'react-icons/fa'; 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/router'; 
+import { auth } from '../lib/firebase'; 
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import useGithubAuth from '../hooks/useGithubAuth'; 
 
 export default function Login() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loadingLogin, setLoadingLogin] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = async () => {
-    setLoading(true);
-    setErrorMessage('');
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+  const { handleSocialLogin, loading: loadingGithub, errorMessage: githubError, successMessage: githubSuccess } = useGithubAuth();
 
-      if (user.emailVerified) {
-        console.log('Connexion réussie !');
-        router.push('/profile'); // Redirection vers la page de profil
-      } else {
-        setErrorMessage('Veuillez vérifier votre email pour activer votre compte.');
-        await auth.signOut();
-      }
-    } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
-      setErrorMessage(error.message); 
-    }
-    setLoading(false);
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleSocialLogin = async (provider) => {
-    setLoading(true);
+  const handleLogin = async () => {
+    const { email, password } = formData;
+
+    setLoadingLogin(true);
     setErrorMessage('');
+
     try {
-      if (provider === 'github') {
-        await githubSignIn();
-        router.push('/profile'); 
-      }
-      console.log('Connexion réussie avec', provider);
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/profile'); 
     } catch (error) {
-      console.error(`Erreur lors de la connexion avec ${provider}:`, error);
-      setErrorMessage(`Erreur lors de la connexion avec ${provider}: ${error.message}`);
+      console.error('Erreur lors de la connexion:', error);
+      setErrorMessage(error.message);
     }
-    setLoading(false);
+
+    setLoadingLogin(false);
   };
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
@@ -60,12 +52,12 @@ export default function Login() {
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 space-y-6">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Connexion à votre compte
+            Connectez-vous à votre compte
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Ou{' '}
             <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-              inscrivez-vous pour un nouveau compte
+              créez un nouveau compte
             </Link>
           </p>
         </div>
@@ -74,8 +66,9 @@ export default function Login() {
           {/* Bouton de connexion GitHub */}
           <div className="flex space-x-4">
             <button
-              onClick={() => handleSocialLogin('github')}
+              onClick={() => handleSocialLogin('github')} // Correction ici
               className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              disabled={loadingGithub || loadingLogin}
             >
               <FaGithub className="w-5 h-5 mr-2" />
               GitHub
@@ -94,6 +87,7 @@ export default function Login() {
 
           {/* Formulaire de connexion */}
           <div className="space-y-4">
+            {/* Champ Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Adresse Email
@@ -105,14 +99,15 @@ export default function Login() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
+                  className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition duration-150 ease-in-out"
                   placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </div>
             </div>
 
+            {/* Champ Mot de Passe */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Mot de Passe
@@ -124,52 +119,45 @@ export default function Login() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
+                  className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition duration-150 ease-in-out"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                 />
               </div>
             </div>
 
+            {/* Messages d'Erreur et de Succès */}
             {errorMessage && (
               <div className="text-red-600 text-sm">
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember_me"
-                  name="remember_me"
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">
-                  Se souvenir de moi
-                </label>
+            {githubError && (
+              <div className="text-red-600 text-sm">
+                {githubError}
               </div>
+            )}
 
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
-                  Mot de passe oublié ?
-                </Link>
+            {githubSuccess && (
+              <div className="text-green-600 text-sm">
+                {githubSuccess}
               </div>
-            </div>
+            )}
           </div>
 
-          
+          {/* Bouton de connexion */}
           <div>
             <button
               type="button"
               onClick={handleLogin}
-              disabled={loading}
+              disabled={loadingLogin || loadingGithub}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                loading ? 'bg-indigo-300' : 'bg-indigo-600 hover:bg-indigo-700'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out`}
+                loadingLogin || loadingGithub ? 'bg-green-300' : 'bg-green-600 hover:bg-green-700'
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out`}
             >
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loadingLogin || loadingGithub ? 'Chargement...' : 'Se Connecter'}
             </button>
           </div>
         </div>

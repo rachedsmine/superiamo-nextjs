@@ -1,3 +1,4 @@
+// pages/api/signup.js
 import admin from '../../lib/firebaseAdmin';
 import { getDistance } from 'geolib';
 import { PARIS_COORDINATES } from '../../lib/constants';
@@ -8,21 +9,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Méthode non autorisée' });
   }
 
-  const { email, password, firstName, lastName, phoneNumber, adress } = req.body;
+  const { email, password, firstName, lastName, phoneNumber, address } = req.body;
 
-  if (!email || !password || !firstName || !lastName || !phoneNumber || !adress) {
+  if (!email || !password || !firstName || !lastName || !phoneNumber || !address) {
     return res.status(400).json({ message: 'Tous les champs sont requis.' });
   }
 
-  
   const phoneNumberObj = parsePhoneNumberFromString(phoneNumber);
   if (!phoneNumberObj || !phoneNumberObj.isValid()) {
     return res.status(400).json({ message: 'Numéro de téléphone invalide. Utilisez le format E.164, par exemple +33612345678.' });
   }
 
   try {
-    // Valider l'adresse via l'API adresse.data.gouv.fr
-    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(adress)}`);
+    // Validation de l'adresse
+    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}`);
 
     if (!response.ok) {
       throw new Error('Erreur lors de la géocodification de l\'adresse');
@@ -34,27 +34,25 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Adresse non trouvée.' });
     }
 
-    
     const { coordinates } = data.features[0].geometry;
     const [longitude, latitude] = coordinates;
 
-    // Calcul dela distance 
+    // Calcul de la distance
     const distance = getDistance(
       { latitude: PARIS_COORDINATES.latitude, longitude: PARIS_COORDINATES.longitude },
       { latitude, longitude }
     );
 
-    //Convertion de la distance en kilomètres
+    // Conversion de la distance en kilomètres
     const distanceKm = distance / 1000;
 
-    
     if (distanceKm > 50) {
       return res.status(400).json({
         message: 'L\'adresse doit être située à moins de 50 km de Paris.',
       });
     }
 
-    // Créeation de l'utilisateur avec Firebase Admin
+    // Création de l'utilisateur avec Firebase Admin
     const userRecord = await admin.auth().createUser({
       email,
       password,
@@ -74,13 +72,16 @@ export default async function handler(req, res) {
       firstName,
       lastName,
       phoneNumber: phoneNumberObj.number,
-      adress,
+      address,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       emailVerified: false,
     });
 
+    
+
     return res.status(201).json({
       message: 'Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.',
+      verificationLink, 
     });
   } catch (error) {
     console.error('Erreur lors de l\'inscription:', error);

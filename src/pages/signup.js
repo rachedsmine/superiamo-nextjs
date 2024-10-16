@@ -4,8 +4,12 @@ import { FaGithub } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/router'; 
 import { auth, firestore } from '../lib/firebase'; 
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { 
+  createUserWithEmailAndPassword, 
+  sendEmailVerification 
+} from 'firebase/auth';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import useGithubAuth from '../hooks/useGithubAuth'; 
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -15,12 +19,15 @@ export default function Signup() {
     firstName: '',
     lastName: '',
     phoneNumber: '',
-    adress: '',
+    address: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loadingSignup, setLoadingSignup] = useState(false);
+  const [loadingAddress, setLoadingAddress] = useState(false);
   const router = useRouter();
+
+  const { handleSocialLogin, loading: loadingGithub, errorMessage: githubError, successMessage: githubSuccess } = useGithubAuth();
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -30,45 +37,75 @@ export default function Signup() {
   };
 
   const handleSignup = async () => {
-    const { email, password, confirmPassword, firstName, lastName, phoneNumber, adress } = formData;
-
+    const { email, password, confirmPassword, firstName, lastName, phoneNumber, address } = formData;
+  
+    // Validation des champs
     if (password !== confirmPassword) {
       setErrorMessage('Les mots de passe ne correspondent pas.');
       return;
     }
-
-    if (!adress) {
+  
+    if (!address) {
       setErrorMessage('L\'adresse est requise.');
       return;
     }
-
-    // Valider le format du numéro de téléphone
-    const phoneNumberObj = parsePhoneNumberFromString(phoneNumber, 'FR'); // Remplacez 'FR' par le code pays approprié
+  
+    // Validation du format du numéro de téléphone
+    const phoneNumberObj = parsePhoneNumberFromString(phoneNumber, 'FR');
     if (!phoneNumberObj || !phoneNumberObj.isValid()) {
       setErrorMessage('Numéro de téléphone invalide. Utilisez le format E.164, par exemple +33612345678.');
       return;
     }
-
-    setLoading(true);
+  
+    setLoadingSignup(true);
     setErrorMessage('');
     setSuccessMessage('');
 
+    // Validation de l'adresse via l'API
+    setLoadingAddress(true);
     try {
-     
+      const response = await fetch('/api/validate-address', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address }), 
+      });
+
+      const result = await response.json();
+      console.log('Validation Address Response:', result);
+
+      if (!response.ok) {
+        setErrorMessage(result.message || 'L\'adresse doit être située à moins de 50 km de Paris.');
+        setLoadingAddress(false);
+        setLoadingSignup(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la validation de l\'adresse:', error);
+      setErrorMessage('Erreur lors de la validation de l\'adresse.');
+      setLoadingAddress(false);
+      setLoadingSignup(false);
+      return;
+    }
+    setLoadingAddress(false);
+
+    // Création de l'utilisateur avec Firebase Auth
+    try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-     
+      // Envoi de l'email de vérification
       await sendEmailVerification(user);
 
-      // Sauvegarder les données supplémentaires dans Firestore
+      // Enregistrement des informations utilisateur dans Firestore
       await firestore.collection('users').doc(user.uid).set({
         uid: user.uid,
         email,
         firstName,
         lastName,
         phoneNumber: phoneNumberObj.number,
-        adress,
+        address,
         createdAt: new Date(),
         emailVerified: false,
       });
@@ -81,24 +118,18 @@ export default function Signup() {
         firstName: '',
         lastName: '',
         phoneNumber: '',
-        adress: '',
+        address: '',
       });
 
-     
       setTimeout(() => {
         router.push('/login');
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error('Erreur lors de l\'inscription:', error);
       setErrorMessage(error.message);
     }
 
-    setLoading(false);
-  };
-
-  const handleSocialLogin = async () => {
-    // Votre implémentation actuelle pour GitHub
-    // ...
+    setLoadingSignup(false);
   };
 
   return (
@@ -125,8 +156,9 @@ export default function Signup() {
           {/* Bouton de connexion GitHub */}
           <div className="flex space-x-4">
             <button
-              onClick={handleSocialLogin}
+              onClick={() => handleSocialLogin('github')}
               className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              disabled={loadingGithub || loadingSignup}
             >
               <FaGithub className="w-5 h-5 mr-2" />
               GitHub
@@ -209,19 +241,19 @@ export default function Signup() {
 
             {/* Champ Adresse */}
             <div>
-              <label htmlFor="adress" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                 Adresse
               </label>
               <div className="mt-1">
                 <input
-                  id="adress"
-                  name="adress"
+                  id="address"
+                  name="address"
                   type="text"
                   autoComplete="street-address"
                   required
                   className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition duration-150 ease-in-out"
                   placeholder="123 Rue de Exemple, Paris, France"
-                  value={formData.adress}
+                  value={formData.address}
                   onChange={handleChange}
                 />
               </div>
@@ -287,6 +319,7 @@ export default function Signup() {
               </div>
             </div>
 
+            {/* Messages d'Erreur et de Succès */}
             {errorMessage && (
               <div className="text-red-600 text-sm">
                 {errorMessage}
@@ -298,6 +331,18 @@ export default function Signup() {
                 {successMessage}
               </div>
             )}
+
+            {githubError && (
+              <div className="text-red-600 text-sm">
+                {githubError}
+              </div>
+            )}
+
+            {githubSuccess && (
+              <div className="text-green-600 text-sm">
+                {githubSuccess}
+              </div>
+            )}
           </div>
 
           {/* Bouton d'inscription */}
@@ -305,12 +350,12 @@ export default function Signup() {
             <button
               type="button"
               onClick={handleSignup}
-              disabled={loading}
+              disabled={loadingSignup || loadingGithub || loadingAddress}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                loading ? 'bg-green-300' : 'bg-green-600 hover:bg-green-700'
+                loadingSignup || loadingGithub || loadingAddress ? 'bg-green-300' : 'bg-green-600 hover:bg-green-700'
               } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out`}
             >
-              {loading ? 'Inscription...' : 'S\'inscrire'}
+              {loadingSignup || loadingGithub || loadingAddress ? 'Chargement...' : 'S\'inscrire'}
             </button>
           </div>
         </div>

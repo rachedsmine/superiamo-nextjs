@@ -1,3 +1,5 @@
+// src/hooks/useAuth.js
+
 import { useEffect, useState, useContext, createContext } from 'react';
 import { auth } from '../lib/firebase';
 
@@ -34,7 +36,7 @@ function useProvideAuth() {
     }
   };
 
-  const signUp = async (email, password, firstName, lastName, phoneNumber, adress) => {
+  const signUp = async (email, password, firstName, lastName, phoneNumber, address) => {
     try {
       const response = await fetch('/api/signup', {
         method: 'POST',
@@ -47,7 +49,7 @@ function useProvideAuth() {
           firstName,
           lastName,
           phoneNumber,
-          adress,
+          address, // Correction de 'adress' à 'address'
         }),
       });
 
@@ -58,7 +60,9 @@ function useProvideAuth() {
       }
 
       // L'utilisateur est automatiquement connecté via Firebase Auth grâce à la route API
-      setUser(auth.currentUser);
+      // Récupérer l'utilisateur actuel
+      const currentUser = auth.currentUser;
+      setUser(currentUser);
 
       return data;
     } catch (error) {

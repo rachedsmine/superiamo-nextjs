@@ -7,15 +7,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Méthode non autorisée' });
   }
 
-  const { adress } = req.body;
+  const { address } = req.body; // Correction ici
 
-  if (!adress) {
-    return res.status(400).json({ message: 'Adresse requise' });
+  if (!address) { // Correction ici
+    return res.status(400).json({ message: 'L\'adresse doit être située à moins de 50 km de Paris.' });
   }
 
   try {
     // Appeler l'API adresse.data.gouv.fr pour géocoder l'adresse
-    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(adress)}`);
+    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}`); // Correction ici
 
     if (!response.ok) {
       throw new Error('Erreur lors de la géocodification de l\'adresse');

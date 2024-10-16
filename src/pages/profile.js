@@ -13,7 +13,7 @@ const validationSchema = Yup.object().shape({
   firstName: Yup.string().required('Prénom requis'),
   lastName: Yup.string().required('Nom requis'),
   phoneNumber: Yup.string().required('Numéro de téléphone requis'),
-  adress: Yup.string().required('Adresse requise'),
+  address: Yup.string().required('Adresse requise'),
 });
 
 export default function Profile() {
@@ -22,7 +22,7 @@ export default function Profile() {
     firstName: '',
     lastName: '',
     phoneNumber: '',
-    adress: '',
+    address: '',
   });
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState('');
@@ -67,7 +67,7 @@ export default function Profile() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ adress: data.adress }),
+        body: JSON.stringify({ address: data.address }),
       });
 
       const result = await response.json();
@@ -163,12 +163,12 @@ export default function Profile() {
             <label className="block text-sm font-medium text-gray-700">Adresse</label>
             <input
               type="text"
-              name="adress"
-              {...register('adress')}
+              name="address"
+              {...register('address')}
               disabled={!isEditing}
               className={`mt-1 block w-full px-3 py-2 bg-gray-50 border ${isEditing ? 'border-indigo-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
             />
-            {errors.adress && <p className="text-red-500 text-sm mt-1">{errors.adress.message}</p>}
+            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
           </div>
 
           {/* Champ Email */}

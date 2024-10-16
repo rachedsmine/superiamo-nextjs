@@ -48,12 +48,7 @@ export default function Home() {
                 >
                   Profil
                 </Link>
-                <Link
-                  href="/dashboard"
-                  className="px-3 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition"
-                >
-                  Tableau de Bord
-                </Link>
+                
               </>
             ) : (
               <>

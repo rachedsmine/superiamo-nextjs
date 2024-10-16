@@ -49,7 +49,7 @@ function useProvideAuth() {
           firstName,
           lastName,
           phoneNumber,
-          address, // Correction de 'adress' à 'address'
+          address, 
         }),
       });
 

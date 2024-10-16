@@ -37,7 +37,7 @@ export const saveUserDataOnSignup = async (user, additionalData = {}) => {
       firstName: additionalData.firstName || '',
       lastName: additionalData.lastName || '',
       phoneNumber: additionalData.phoneNumber || '',
-      adress: additionalData.adress || '',
+      address: additionalData.address || '',
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),

@@ -16,7 +16,7 @@ const validationSchema = Yup.object().shape({
       const phoneNumber = parsePhoneNumberFromString(value);
       return phoneNumber ? phoneNumber.isValid() : false;
     }),
-  adress: Yup.string().required('Adresse requise'),
+  address: Yup.string().required('Adresse requise'),
 });
 
 export default function CompleteProfile() {
@@ -53,7 +53,7 @@ export default function CompleteProfile() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ adress: data.adress }),
+        body: JSON.stringify({ address: data.address }),
       });
 
       const result = await response.json();
@@ -73,7 +73,7 @@ export default function CompleteProfile() {
         firstName: data.firstName,
         lastName: data.lastName,
         phoneNumber: formattedPhoneNumber,
-        adress: data.adress,
+        address: data.address,
         updatedAt: FieldValue.serverTimestamp(), 
       }, { merge: true });
 
@@ -141,11 +141,11 @@ export default function CompleteProfile() {
             <label className="block text-sm font-medium text-gray-700">Adresse</label>
             <input
               type="text"
-              name="adress"
-              {...register('adress')}
-              className={`mt-1 block w-full px-3 py-2 bg-gray-50 border ${errors.adress ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+              name="address"
+              {...register('address')}
+              className={`mt-1 block w-full px-3 py-2 bg-gray-50 border ${errors.address ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
             />
-            {errors.adress && <p className="text-red-500 text-sm mt-1">{errors.adress.message}</p>}
+            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
           </div>
 
           {/* Champ Email */}

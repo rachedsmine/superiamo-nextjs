@@ -1,4 +1,3 @@
-// pages/api/signup.js
 import admin from '../../lib/firebaseAdmin';
 import { getDistance } from 'geolib';
 import { PARIS_COORDINATES } from '../../lib/constants';
@@ -61,7 +60,7 @@ export default async function handler(req, res) {
       disabled: false,
     });
 
-    // Générer un lien de vérification d'email
+    
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
 
     // Sauvegarde des données supplémentaires dans Firestore

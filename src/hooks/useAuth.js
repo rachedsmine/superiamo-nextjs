@@ -1,5 +1,3 @@
-// src/hooks/useAuth.js
-
 import { useEffect, useState, useContext, createContext } from 'react';
 import { auth } from '../lib/firebase';
 
@@ -59,7 +57,6 @@ function useProvideAuth() {
         throw new Error(data.message || 'Erreur lors de l\'inscription.');
       }
 
-      // L'utilisateur est automatiquement connecté via Firebase Auth grâce à la route API
       // Récupérer l'utilisateur actuel
       const currentUser = auth.currentUser;
       setUser(currentUser);

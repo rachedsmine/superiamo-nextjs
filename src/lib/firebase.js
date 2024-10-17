@@ -68,7 +68,7 @@ export const githubSignIn = async () => {
 
 /**
  * Fonction pour sauvegarder les données utilisateur après connexion avec email/mot de passe
- * @param {firebase.User} user - Utilisateur Firebase
+ * @param {firebase.User} user 
  * @param {Object} additionalData - Données supplémentaires à sauvegarder
  */
 export const saveUserDataToFirestore = async (user, additionalData = {}) => {

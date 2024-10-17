@@ -1,4 +1,3 @@
-// src/pages/profile.js
 import { useEffect, useState } from 'react';
 import { auth, firestore, signOutUser } from '../lib/firebase';
 import { useRouter } from 'next/router';
@@ -44,7 +43,7 @@ export default function Profile() {
             setUserData(userDoc.data());
             reset(userDoc.data()); // mise à jour des valeurs du formulaire
           } else {
-            // Si l'utilisateur n'a pas de profil, rediriger vers la complétion de profil
+            
             router.push('/complete-profile');
           }
         } catch (error) {
@@ -112,8 +111,8 @@ export default function Profile() {
               <Image
                 src={user.photoURL}
                 alt="Photo de profil"
-                width={128} // Définissez la largeur souhaitée
-                height={128} // Définissez la hauteur souhaitée
+                width={128} 
+                height={128} 
                 className="rounded-full"
               />
             </div>

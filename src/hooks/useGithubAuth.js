@@ -1,5 +1,3 @@
-// hooks/useGithubAuth.js
-
 import { useState } from 'react';
 import { GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth, firestore } from '../lib/firebase'; 
@@ -33,17 +31,17 @@ const useGithubAuth = () => {
             email: user.email,
             firstName: user.displayName?.split(' ')[0] || '',
             lastName: user.displayName?.split(' ')[1] || '',
-            phoneNumber: '', // Vous pouvez demander cette information ultérieurement
-            address: '', // Correction de 'adress' à 'address'
+            phoneNumber: '', 
+            address: '', 
             createdAt: new Date(),
             emailVerified: user.emailVerified,
-            githubProvider: true, // Indique que l'utilisateur s'est inscrit via GitHub
+            githubProvider: true,
           });
         }
 
         setSuccessMessage('Connexion réussie via GitHub !');
         setTimeout(() => {
-          router.push('/complete-profile'); // Redirigez l'utilisateur vers le tableau de bord ou une autre page
+          router.push('/complete-profile'); 
         }, 2000);
       }
       console.log('Connexion réussie avec', provider);

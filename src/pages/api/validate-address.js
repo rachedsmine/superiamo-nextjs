@@ -1,4 +1,3 @@
-// src/pages/api/validate-address.js
 import { PARIS_COORDINATES } from '../../lib/constants';
 import { getDistance } from 'geolib';
 
@@ -7,15 +6,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Méthode non autorisée' });
   }
 
-  const { address } = req.body; // Correction ici
+  const { address } = req.body; 
 
-  if (!address) { // Correction ici
+  if (!address) { 
     return res.status(400).json({ message: 'L\'adresse doit être située à moins de 50 km de Paris.' });
   }
 
   try {
     // Appeler l'API adresse.data.gouv.fr pour géocoder l'adresse
-    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}`); // Correction ici
+    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}`);
 
     if (!response.ok) {
       throw new Error('Erreur lors de la géocodification de l\'adresse');
@@ -40,7 +39,7 @@ export default async function handler(req, res) {
     // Convertir la distance en kilomètres
     const distanceKm = distance / 1000;
 
-    // Vérifier si la distance est <= 50 km
+   
     if (distanceKm <= 50) {
       return res.status(200).json({
         valid: true,

@@ -1,5 +1,3 @@
-// pages/index.js
-
 import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
 import localFont from "next/font/local";
@@ -36,7 +34,7 @@ export default function Home() {
       <header className="w-full py-6 bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
-            {/* Logo texte ou SVG peut être ajouté ici si nécessaire */}
+            
             <span className="text-2xl font-bold">SuperiamoApp</span>
           </Link>
           <nav className="space-x-4">

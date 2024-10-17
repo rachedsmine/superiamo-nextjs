@@ -66,7 +66,7 @@ export default function Login() {
           {/* Bouton de connexion GitHub */}
           <div className="flex space-x-4">
             <button
-              onClick={() => handleSocialLogin('github')} // Correction ici
+              onClick={() => handleSocialLogin('github')} 
               className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               disabled={loadingGithub || loadingLogin}
             >
